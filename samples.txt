@@ -1,0 +1,3 @@
+wss://stream.binance.com:9443/ws/bnbbtc@depth
+
+wss://api.sandbox.gemini.com
