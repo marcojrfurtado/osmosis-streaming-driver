@@ -24,7 +24,7 @@ install_requirements = [
     'PyYAML>=4.2b1',
     'osmosis-driver-interface==0.0.7',
     'websocket-client==0.53.0',
-    'Flask==1.1.1',
+    'Flask>=1.0.2',
 ]
 
 # Required to run setup.py:
