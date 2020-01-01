@@ -16,4 +16,4 @@ cp ${OSM_INTERFACE_WITH_WSS_TGT}/dist/*.whl ./dist/
 
 
 # Build container for patched Brizo and copy patched compose file
-docker build . -t brizo-with-wss-support && cp compose-files/patched_brizo.yml ../barge/compose-files/brizo.yml
+docker build . -t brizo-with-wss-support && cp docker-assets/compose-files/patched_brizo.yml ../barge/compose-files/brizo.yml
