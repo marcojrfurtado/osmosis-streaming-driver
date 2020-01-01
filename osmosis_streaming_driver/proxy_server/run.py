@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta
 from flask import Flask, Response, request
+from flask_cors import cross_origin
 import websocket
 import multiprocessing
 import os
@@ -50,6 +51,7 @@ def get_token():
 
 
 @app.route('/proxy')
+@cross_origin()
 def proxy_wss():
     token = request.args.get('token', type=str)
     if token is None:

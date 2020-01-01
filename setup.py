@@ -25,6 +25,7 @@ install_requirements = [
     'osmosis-driver-interface==0.0.7',
     'websocket-client==0.53.0',
     'Flask>=1.0.2',
+    'Flask-Cors>=3.0.6',
     'python-dateutil>=2.8.0',
 ]
 
