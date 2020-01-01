@@ -1,14 +1,17 @@
-from collections import OrderedDict
 from random import randint
 from hashlib import md5
 from datetime import datetime
+from dateutil.parser import parse as dateparse
+import sqlite3
+import contextlib
+
+DEFAULT_TOKEN_STORE_DB = './token_store.db'
 
 
 class TokenStore:
-
-    def __init__(self):
-        self._tokens = dict()
-        self._expiration_map = OrderedDict()
+    def __init__(self, store_db_location=DEFAULT_TOKEN_STORE_DB):
+        self._store_db = store_db_location
+        self._create_table()
 
     def register(self, stream_url, expiration_date):
         self._purge()
@@ -17,34 +20,50 @@ class TokenStore:
         self._insert(stream_url, token, expiration_date)
         return token
 
-    def validate(self, token):
+    def get_token_attributes(self, token):
         self._purge()
-        return token in self._tokens
+        stream_url, expiration = None, None
+        with sqlite3.connect(self._store_db) as con:
+            with contextlib.closing(con.cursor()) as cursor:
+                row = cursor.execute('SELECT stream_url, expiration from tokens '
+                                     'WHERE token=?', (token,)).fetchone()
+                if row:
+                    stream_url, expiration = row[0], dateparse(row[1])
 
-    def get_stream_url(self, token):
-        if not(self.validate(token)):
-            return None
-        return self._tokens[token]
+        return stream_url, expiration
 
     def dump(self):
         details_str = ""
-        for expiration, token in self._expiration_map.items():
-            details_str += "Token '%s' valid for stream '%s' expires at '%s';\n" % \
-                           (token, self._tokens[token], expiration)
+        with sqlite3.connect(self._store_db) as con:
+            with contextlib.closing(con.cursor()) as cursor:
+                details_str += str(cursor.execute('SELECT * from tokens '
+                                                  'ORDER BY expiration').fetchall())
         return details_str
 
     def _insert(self, stream_url, token, expiration_date):
-        self._tokens[token] = stream_url
-        self._expiration_map[expiration_date] = token
+        with sqlite3.connect(self._store_db) as con:
+            with contextlib.closing(con.cursor()) as cursor:
+                cursor.execute('INSERT INTO tokens(token,stream_url,expiration)'
+                               'VALUES(?,?,?)', (token, stream_url, expiration_date))
+        con.commit()
+
+    def _create_table(self):
+        with sqlite3.connect(self._store_db) as con:
+            with contextlib.closing(con.cursor()) as cursor:
+                cursor.execute('''CREATE TABLE IF NOT EXISTS tokens (
+                                        id integer PRIMARY KEY,
+                                        token text NOT NULL,
+                                        stream_url text NOT NULL,
+                                        expiration timestamp NOT NULL
+                                    ); ''')
+            con.commit()
 
     def _purge(self):
-        now = datetime.now()
-        to_delete = []
-        for expiration, _ in self._expiration_map.items():
-            if expiration > now:
-                break
-            to_delete.append(expiration)
-        for expired_timestamp in to_delete:
-            expired_token = self._expiration_map[expired_timestamp]
-            del self._expiration_map[expired_timestamp]
-            del self._tokens[expired_token]
+        # TODO: Should be stored in a ordered map
+        # Using this because it works in a multi-process deployment
+        with sqlite3.connect(self._store_db) as con:
+            with contextlib.closing(con.cursor()) as cursor:
+                cursor.execute('DELETE FROM tokens '
+                               'WHERE expiration < ?', (datetime.now(),))
+            con.commit()
+

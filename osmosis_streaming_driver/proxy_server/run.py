@@ -54,14 +54,14 @@ def proxy_wss():
     token = request.args.get('token', type=str)
     if token is None:
         return "You need to provide a valid token to start proxying.", 400
-    stream_url = store.get_stream_url(token)
+    stream_url, expiration = store.get_token_attributes(token)
     if stream_url is None:
         return "Token '%s' is invalid. Please provide a valid token." % str(token), 401
 
     ws = websocket.create_connection(stream_url)
 
     def generate(webs):
-        while store.validate(token):
+        while expiration > datetime.now():
             yield webs.recv()
         webs.close()
     return Response(generate(ws), mimetype='text/plain')

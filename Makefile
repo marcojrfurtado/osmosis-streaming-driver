@@ -51,6 +51,7 @@ clean-test: ## remove test and coverage artifacts
 	rm -f *.log
 	rm -fr htmlcov/
 	rm -fr .pytest_cache
+	rm -f *.db
 
 lint: ## check style with flake8
 	flake8 osmosis_streaming_driver tests

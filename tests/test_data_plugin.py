@@ -24,7 +24,6 @@ def mocked_requests_get(*args, **kwargs):
     return MockResponse('', 400)
 
 
-
 def test_driver_type():
     assert plugin.type() == 'Streaming'
 
