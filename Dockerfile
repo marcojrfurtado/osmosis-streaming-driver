@@ -1,9 +1,11 @@
 FROM oceanprotocol/brizo:v0.7.2
 
-# Proxy Server env
+# Proxy Server Configuration
 ENV PROXY_SERVER_WORKERS='8'
 ENV PROXY_SERVER_TIMEOUT='9000'
 ENV PROXY_SERVER_URL='http://0.0.0.0:3580'
+#ENV PROXY_SERVER_HOSTNAME='myproxyhost.com'
+#ENV PROXY_SERVER_TOKEN_EXPIRATION_MIN=2
 
 # Install custom packages
 COPY dist/osmosis_streaming_driver-0.0.1-py2.py3-none-any.whl /brizo

@@ -7,11 +7,11 @@ import requests
 
 from osmosis_driver_interface.data_plugin import AbstractPlugin
 from osmosis_driver_interface.exceptions import OsmosisError
-from .proxy_server import PROXY_SERVER_PORT
+from osmosis_streaming_driver.proxy_server import PROXY_SERVER_PORT, PROXY_SERVER_HOST
 
 class Plugin(AbstractPlugin):
     STREAMING_PROXY_ENVVAR = 'STREAMING_PROXY'
-    DEFAULT_STREAMING_PROXY = f'https://localhost:{PROXY_SERVER_PORT}'
+    DEFAULT_STREAMING_PROXY = f'http://{PROXY_SERVER_HOST}:{PROXY_SERVER_PORT}'
 
     def __init__(self, config=None):
         self.config = config
@@ -41,10 +41,12 @@ class Plugin(AbstractPlugin):
     def _obtain_token(self, remote_file):
         new_token_url = f'{self._streaming_proxy}/token?stream_url={remote_file}'
         res = requests.get(new_token_url)
+
         if not res:
-            raise OsmosisError(f'Fetching token for stream failed. '
-                               f'Status: "{res.status}". Reason: "{res.text}"')
+            raise OsmosisError(f'Fetching token with "{new_token_url}"" failed. Response: {str(res)}')
+
         return res.text
+        
 
     def generate_url(self, remote_file):
         if not self._validate_wss_url(remote_file):

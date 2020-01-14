@@ -1,12 +1,25 @@
+import websocket, multiprocessing, os, warnings
 from datetime import datetime, timedelta
 from flask import Flask, Response, request
 from flask_cors import cross_origin
-import websocket
-import multiprocessing
-import os
-from .token_store import TokenStore
+from osmosis_streaming_driver.proxy_server.token_store import TokenStore
 
 PROXY_SERVER_PORT = 3580 if 'PROXY_SERVER_PORT' not in os.environ else os.environ['PROXY_SERVER_PORT']
+PROXY_SERVER_HOST = 'localhost'
+if 'PROXY_SERVER_HOSTNAME' in os.environ:
+    PROXY_SERVER_HOST = os.environ['PROXY_SERVER_HOSTNAME']
+else:
+    import socket
+    try:
+        s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+        s.connect(("8.8.8.8", 80))
+        PROXY_SERVER_HOST = s.getsockname()[0]
+    except Exception as e:
+        warnings.warn('Error while trying to obtain IP address of this host. %s' % str(e))
+
+PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN = 2
+if 'PROXY_SERVER_TOKEN_EXPIRATION_MIN' in os.environ:
+    PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN = os.environ['PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN']
 
 app = Flask(__name__)
 store = TokenStore()
@@ -39,7 +52,7 @@ def _validate_stream(stream_url, timeout_sec=5):
 def get_token():
     stream_url = request.args.get('stream_url', type=str)
     expires_at = request.args.get('expires_at', type=datetime,
-                                  default=datetime.now()+timedelta(minutes=2))
+                                  default=datetime.now()+timedelta(minutes=PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN))
     if stream_url is None:
         return "You need to provide the URL of your stream.", 400
 

@@ -5,7 +5,7 @@ from unittest import mock
 from osmosis_streaming_driver.data_plugin import Plugin
 from osmosis_driver_interface.exceptions import OsmosisError
 
-from osmosis_streaming_driver.proxy_server import PROXY_SERVER_PORT
+from osmosis_streaming_driver.proxy_server import PROXY_SERVER_PORT, PROXY_SERVER_HOST
 
 plugin = Plugin()
 
@@ -36,7 +36,7 @@ def test_generate_url_not_a_stream():
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_generate_url_valid_stream(mock_get):
     stream_url = plugin.generate_url('wss://valid')
-    assert stream_url == f'https://localhost:{PROXY_SERVER_PORT}/proxy?token=valid_token'
+    assert stream_url == f'http://{PROXY_SERVER_HOST}:{PROXY_SERVER_PORT}/proxy?token=valid_token'
 
 
 @pytest.mark.xfail(raises=OsmosisError)
