@@ -22,9 +22,11 @@
 
 ## Overview
 
-This Osmosis Driver demonstrates how to expand Brizo, and go beyond static data files. It enables it to download live data from Websocket streams.
+This Osmosis Driver demonstrates how to expand Brizo, and go beyond static data files. It enables it to download live data from Websocket streams. It achieves this through a proxy server, which is responsible for issuing access tokens.
 
-It ships with a proxy server, which is responsible for issuing expiring tokens. It allows other to downloaded the stream through a signed URL.
+Introduction Video: 
+
+[![Introduction Video](http://img.youtube.com/vi/IO3lR1Zd8ro/0.jpg)](http://www.youtube.com/watch?v=IO3lR1Zd8ro "Osmosis Streaming Driver Intro")
 
 ## Setup
 
