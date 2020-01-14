@@ -1,0 +1,28 @@
+{
+  "name": "example",
+  "version": "1.0.0",
+  "description": "",
+  "main": "example.js",
+  "dependencies": {
+    "@oceanprotocol/squid": "^1.1.0-beta.0"
+  },
+  "devDependencies": {
+    "mocha": "^6.2.2",
+    "ts-node": "^8.6.1",
+    "typescript": "^3.7.4",
+    "mock-local-storage": "^1.1.11",
+    "chai": "^4.2.0",
+    "@types/mocha": "^5.2.7",
+    "@types/chai": "^4.2.6",
+    "@types/chai-spies": "^1.0.1",
+    "@types/node": "^13.1.6",
+    "@truffle/hdwallet-provider": "^1.0.28"
+  },
+  "scripts": {
+    "prepare": "npm run build:metadata",
+    "build:metadata": "./scripts/get-metadata.js > metadata.json",
+    "integration": "SEED_WORDS='taxi music thumb unique chat sand crew more leg another off lamp' mocha --opts mocha.opts"
+  },
+  "author": "",
+  "license": "ISC"
+}
