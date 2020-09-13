@@ -51,8 +51,13 @@ def _validate_stream(stream_url, timeout_sec=5):
 @app.route('/token')
 def get_token():
     stream_url = request.args.get('stream_url', type=str)
-    expires_at = request.args.get('expires_at', type=datetime,
-                                  default=datetime.now()+timedelta(minutes=PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN))
+    expires_at_str = request.args.get('expires_at', type=str)
+    expires_at = datetime.now()+timedelta(minutes=PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN)
+    try:
+        expires_at = datetime.fromisoformat(expires_at_str)
+    except:
+        pass
+
     if stream_url is None:
         return "You need to provide the URL of your stream.", 400
 

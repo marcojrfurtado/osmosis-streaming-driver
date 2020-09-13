@@ -22,7 +22,7 @@ with open('CHANGELOG.md') as history_file:
 install_requirements = [
     'coloredlogs',
     'PyYAML>=4.2b1',
-    'osmosis-driver-interface==0.0.7',
+    'osmosis-driver-interface-plus>=0.0.8',
     'websocket-client==0.53.0',
     'Flask>=1.0.2',
     'Flask-Cors>=3.0.6',

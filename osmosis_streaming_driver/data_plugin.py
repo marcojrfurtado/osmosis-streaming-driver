@@ -5,6 +5,8 @@ import logging
 import os
 import requests
 
+from datetime import datetime, timedelta
+
 from osmosis_driver_interface.data_plugin import AbstractPlugin
 from osmosis_driver_interface.exceptions import OsmosisError
 from osmosis_streaming_driver.proxy_server import PROXY_SERVER_PORT, PROXY_SERVER_HOST
@@ -37,22 +39,31 @@ class Plugin(AbstractPlugin):
              path(str): The path to check.
         """
         return stream_url.startswith('wss://')
+    
+    def get_expiration_date(self, service, transfer_event_args):
+        if service is None or transfer_event_args is None:
+            return None
+        hours_purchased = int(transfer_event_args.value) / int(service.get_cost())
+        return datetime.now() + timedelta(hours=hours_purchased) 
 
-    def _obtain_token(self, remote_file):
+    def _obtain_token(self, remote_file, expiration_date=None):
         new_token_url = f'{self._streaming_proxy}/token?stream_url={remote_file}'
+        if expiration_date is not None:
+            new_token_url += f';expiration_date={expiration_date.isoformat()}'
         res = requests.get(new_token_url)
 
         if not res:
-            raise OsmosisError(f'Fetching token with "{new_token_url}"" failed. Response: {str(res)}')
+            raise OsmosisError(f'Fetching token with "{new_token_url}"" failed. Response: {str(res.status_code)}')
 
         return res.text
         
 
-    def generate_url(self, remote_file):
+    def generate_url(self, remote_file, service, transfer_event_args):
         if not self._validate_wss_url(remote_file):
             raise OsmosisError(f'{remote_file} does not represent a valid websocket stream.')
         try:
-            token = self._obtain_token(remote_file)
+            expiration_date = self.get_expiration_date(service, transfer_event_args)
+            token = self._obtain_token(remote_file, expiration_date)
         except Exception as e:
             raise OsmosisError(f'Failed to obtain token for "{remote_file}" from proxy server. Reason: "{str(e)}"')
 
