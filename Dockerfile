@@ -1,7 +1,7 @@
-FROM oceanprotocol/brizo:v0.7.2
+FROM marcojrfurtado/provider-py
 
 # Proxy Server Configuration
-ENV PROXY_SERVER_WORKERS='8'
+ENV PROXY_SERVER_WORKERS='4'
 ENV PROXY_SERVER_TIMEOUT='9000'
 ENV PROXY_SERVER_HOST='0.0.0.0'
 ENV PROXY_SERVER_PORT='3580'
@@ -10,12 +10,13 @@ ENV PROXY_SERVER_PORT='3580'
 #ENV PROXY_SERVER_TOKEN_EXPIRATION_MIN=2
 
 # Install custom packages
-COPY dist/osmosis_streaming_driver-0.0.1-py2.py3-none-any.whl /brizo
-COPY dist/osmosis_driver_interface-0.0.7-py2.py3-none-any.whl /brizo
-RUN pip install /brizo/osmosis_streaming_driver-0.0.1-py2.py3-none-any.whl
-RUN pip install --force /brizo/osmosis_driver_interface-0.0.7-py2.py3-none-any.whl
+COPY dist/osmosis_streaming_driver-0.0.1-py2.py3-none-any.whl /ocean-provider
+COPY dist/ocean_provider-0.1.0-py2.py3-none-any.whl /ocean-provider
+RUN pip uninstall -y osmosis-streaming-driver ocean-provider
+RUN pip install wheel /ocean-provider/osmosis_streaming_driver-0.0.1-py2.py3-none-any.whl
+RUN pip install wheel /ocean-provider/ocean_provider-0.1.0-py2.py3-none-any.whl
+COPY docker-assets/docker-entrypoint.sh /ocean-provider
 
-COPY docker-assets/docker-entrypoint.sh /brizo 
-
+EXPOSE 8030
 EXPOSE 3580
 
