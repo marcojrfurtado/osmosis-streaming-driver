@@ -1,7 +1,7 @@
 #  SPDX-License-Identifier: Apache-2.0
 import pytest
 from unittest import mock
-from datetime import datetime
+from datetime import datetime, timedelta
 
 from osmosis_streaming_driver.proxy_server.run import get_test_client
 
@@ -19,7 +19,7 @@ def mocked_ws_connection(*args, **kwargs):
         def recv(self):
             pass
 
-    if args[0].endswith('wss://valid'):
+    if 'wss://valid' in args[0]:
         return MockWebSocket(args[0])
 
     raise Exception('Invalid stream')
@@ -62,6 +62,12 @@ def test_proxy_without_stream_url(mock_ws):
 def test_proxy_valid_token(mock_ws, mock_get_stream_url):
     assert client.get("/proxy?token=valid").status_code == 200
 
+
+@mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
+@mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.get_token_attributes', side_effect=mocked_get_attributes_from_token)
+def test_proxy_valid_token_with_timestmap(mock_ws, mock_get_stream_url):
+    timestamp = datetime.now() + timedelta(hours=3)
+    assert client.get(f"/proxy?token=valid&expires_at={timestamp.isoformat()}").status_code == 200
 
 @mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
 @mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.get_token_attributes', side_effect=mocked_get_attributes_from_token)

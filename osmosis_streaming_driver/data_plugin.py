@@ -49,11 +49,11 @@ class Plugin(AbstractPlugin):
     def _obtain_token(self, remote_file, expiration_date=None):
         new_token_url = f'{self._streaming_proxy}/token?stream_url={remote_file}'
         if expiration_date is not None:
-            new_token_url += f';expiration_date={expiration_date.isoformat()}'
+            new_token_url += f'&expiration_date={expiration_date.isoformat()}'
         res = requests.get(new_token_url)
 
         if not res:
-            raise OsmosisError(f'Fetching token with "{new_token_url}"" failed. Response: {str(res.status_code)}')
+            raise OsmosisError(f'Fetching token with "{new_token_url}"" failed. Status: {str(res.status_code)}; Reason: {str(res.content)}')
 
         return res.text
         

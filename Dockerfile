@@ -12,9 +12,9 @@ ENV PROXY_SERVER_PORT='3580'
 # Install custom packages
 COPY dist/osmosis_streaming_driver-0.0.1-py2.py3-none-any.whl /ocean-provider
 COPY dist/ocean_provider-0.1.0-py2.py3-none-any.whl /ocean-provider
-RUN pip uninstall -y osmosis-streaming-driver ocean-provider
-RUN pip install wheel /ocean-provider/osmosis_streaming_driver-0.0.1-py2.py3-none-any.whl
-RUN pip install wheel /ocean-provider/ocean_provider-0.1.0-py2.py3-none-any.whl
+RUN pip3 uninstall -y osmosis-streaming-driver ocean-provider
+RUN pip3 install wheel /ocean-provider/osmosis_streaming_driver-0.0.1-py2.py3-none-any.whl
+RUN pip3 install wheel /ocean-provider/ocean_provider-0.1.0-py2.py3-none-any.whl
 COPY docker-assets/docker-entrypoint.sh /ocean-provider
 
 EXPOSE 8030
