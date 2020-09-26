@@ -27,6 +27,7 @@ install_requirements = [
     'Flask>=1.0.2',
     'Flask-Cors>=3.0.6',
     'python-dateutil>=2.8.0',
+    'requests>=2.24.0'
 ]
 
 # Required to run setup.py:
@@ -89,6 +90,6 @@ setup(
     test_suite='tests',
     tests_require=test_requirements,
     url='https://github.com/marcojrfurtado/osmosis-streaming-driver',
-    version='0.0.2',
+    version='0.0.3',
     zip_safe=False,
 )
