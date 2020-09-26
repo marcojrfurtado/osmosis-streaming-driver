@@ -38,7 +38,7 @@ We also piggyback on Brizo's container, and start our proxy server alongside the
 
 ### Proxy Server Settings
 
-If you open `./Dockerfile`, you will see a section containing the Proxy Server configuration. It resembles some of the settings used by the Brizo service.
+If you open `./Dockerfile`, you will see a section containing the Proxy Server configuration. It resembles some of the settings used by the Provider-py service.
 
 You may need to customize some of the following settings:
 ```
@@ -54,41 +54,34 @@ The proxy will generate a signed URL in the format
 ```
 http://<HOST>:<PORT>/proxy?token=1234f654
 ``` 
-By default, `PORT` is `3580` and `HOST` is the `eth0` IP address. For our purposes, this is most likely the IP of the Brizo Docker container. This IP may not be directly available to external consumers. You can use this property to override `HOST` when generating the signed URL.
+By default, `PORT` is `3580` and `HOST` is the `eth0` IP address. For our purposes, this is most likely the IP of the Provider Docker container. This IP may not be directly available to external consumers. You can use this property to override `HOST` when generating the signed URL.
 
 `PROXY_SERVER_TOKEN_EXPIRATION_MIN` is also involved in the process of generating signed URLs. It determines how long should a token be valid. By default this value is 2 minutes.
 
 Other settings, related to timeout, default port and number of workers, may also be overriden. However, it is recommended that you leave them at their default values
 
-### Patching
+## Install
 
-Assuming you cloned barge into `<BARGE DIR>`, simply call
-```
-./patch_barge.sh <BARGE DIR>
-```
-
-If the command was successful, you can start Barge as usual:
-```
-<BARGE DIR>/start_ocean.sh
-``` 
-
-## Standalone Install
-
-If can also install it in your local machine, without Barge. You just need to keep in mind that you need to clone and install the custom interface first
+Unless you want to compile from source, you can just use Pip
 
 ```bash
-git clone https://github.com/marcojrfurtado/osmosis-driver-interface
-cd osmosis-driver-interface
-make dist && pip install --force dist/osmosis_driver_interface-<VERSION>-py2.py3-none-any.whl
+pip3 install osmosis-streaming-driver
 ```
 
-Then install the osmosis streaming driver
+You also need to configure the Osmosis interface to start using by creating a configuration file, for example `~/.osmosis.json`. Paste the following content inside the file:
 
+```json
+{
+    "wss://": "streaming"
+}
+```
+
+And append the following line to your environment setup file (e.g. `~/.bashrc`):
 ```bash
-make dist && pip install dist/osmosis_streaming_driver-<VERSION>-py2.py3-none-any
+export OSMOSIS_PLUGIN_MAP="$HOME/.osmosis.json"
 ```
 
-Instantiate an Osmosis instance and resolve an ipfs url
+Once you reload your terminal, you can instantiate it such as:
 
 ```python
 from osmosis_driver_interface.osmosis import Osmosis
