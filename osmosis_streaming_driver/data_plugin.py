@@ -6,10 +6,13 @@ import os
 import requests
 
 from datetime import datetime, timedelta
+from web3 import Web3
 
 from osmosis_driver_interface.data_plugin import AbstractPlugin
 from osmosis_driver_interface.exceptions import OsmosisError
 from osmosis_streaming_driver.proxy_server import PROXY_SERVER_PORT, PROXY_SERVER_HOST
+
+web3 = Web3()
 
 class Plugin(AbstractPlugin):
     STREAMING_PROXY_ENVVAR = 'STREAMING_PROXY'
@@ -43,7 +46,8 @@ class Plugin(AbstractPlugin):
     def get_expiration_date(self, service, transfer_event_args):
         if service is None or transfer_event_args is None:
             return None
-        hours_purchased = int(transfer_event_args.value) / int(service.get_cost())
+        transfer_amount = round(web3.fromWei(transfer_event_args.value, 'ether'))
+        hours_purchased = int(transfer_amount / service.get_cost())
         return datetime.now() + timedelta(hours=hours_purchased) 
 
     def _obtain_token(self, remote_file, expiration_date=None):
