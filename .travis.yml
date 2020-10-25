@@ -2,7 +2,6 @@ language: python
 
 matrix:
   include:
-    - python: 3.6
     - python: 3.7
       dist: xenial
       sudo: true
@@ -19,4 +18,4 @@ deploy:
   on:
     tags: true
     repo: marcojrfurtado/osmosis-streaming-driver
-    python: 3.6
+    python: 3.7

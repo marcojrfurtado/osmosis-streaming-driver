@@ -1,5 +1,6 @@
 import websocket, multiprocessing, os, warnings
 from datetime import datetime, timedelta
+from dateutil.parser import parse
 from flask import Flask, Response, request
 from flask_cors import cross_origin
 from osmosis_streaming_driver.proxy_server.token_store import TokenStore
@@ -55,7 +56,7 @@ def get_token():
         return "You need to provide the expiration date.", 400
 
     try:
-        expires_at = datetime.fromisoformat(expires_at_str)
+        expires_at = parse(expires_at_str)
     except:
         return f'Expect ISO format expiring date, got {expires_at_str}', 400
 

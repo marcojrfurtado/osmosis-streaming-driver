@@ -45,6 +45,11 @@ def test_get_token_without_stream_url():
 def test_get_token_valid_stream_no_expiration(mock_ws, mock_register):
     assert client.get("/token?stream_url=wss://valid").status_code == 400
 
+@mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
+@mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.register', side_effect=mocked_register_url)
+def test_get_token_valid_stream_with_expiration(mock_ws, mock_register):
+    timestamp = datetime.now() + timedelta(hours=3)
+    assert client.get(f"/token?stream_url=wss://valid&expires_at={timestamp.isoformat()}").status_code == 200
 
 @mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
 @mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.register', side_effect=mocked_register_url)
