@@ -3,6 +3,7 @@ import pytest
 from unittest import mock
 
 from datetime import datetime, timedelta
+from web3 import Web3
 
 from osmosis_streaming_driver.data_plugin import Plugin
 from osmosis_driver_interface.exceptions import OsmosisError
@@ -10,7 +11,7 @@ from osmosis_driver_interface.exceptions import OsmosisError
 from osmosis_streaming_driver.proxy_server import PROXY_SERVER_PORT, PROXY_SERVER_HOST
 
 plugin = Plugin()
-
+web3 = Web3()
 
 def mocked_requests_get(*args, **kwargs):
     class MockResponse:
@@ -48,15 +49,12 @@ def test_generate_url_invalid_stream(mock_get):
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_generate_url_with_expiration(mock_get):
-    service = {
-        'get_cost' : lambda : '2'
-    }
     class MockService:
         def get_cost(self):
             return '2'
     class MockTransferEventArgs:
         def __init__(self):
-            self.value = '6'
+            self.value = web3.toWei(6, 'ether')
         
     transfer_event_args = MockTransferEventArgs()
     service = MockService()
@@ -66,15 +64,12 @@ def test_generate_url_with_expiration(mock_get):
 
 @mock.patch('requests.get', side_effect=mocked_requests_get)
 def test_ensure_correct_expiration(mock_get):
-    service = {
-        'get_cost' : lambda : '2'
-    }
     class MockService:
         def get_cost(self):
             return '2'
     class MockTransferEventArgs:
         def __init__(self):
-            self.value = '6'
+            self.value = web3.toWei(6, 'ether')
         
     transfer_event_args = MockTransferEventArgs()
     service = MockService()

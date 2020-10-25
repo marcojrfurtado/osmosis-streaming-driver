@@ -46,8 +46,8 @@ class Plugin(AbstractPlugin):
     def get_expiration_date(self, service, transfer_event_args):
         if service is None or transfer_event_args is None:
             return None
-        transfer_amount = round(web3.fromWei(transfer_event_args.value, 'ether'))
-        hours_purchased = int(transfer_amount / service.get_cost())
+        transfer_amount = round(web3.fromWei(int(transfer_event_args.value), 'ether'))
+        hours_purchased = int(transfer_amount / int(service.get_cost()))
         return datetime.now() + timedelta(hours=hours_purchased) 
 
     def _obtain_token(self, remote_file, expiration_date=None):

@@ -28,7 +28,7 @@ install_requirements = [
     'Flask-Cors>=3.0.6',
     'python-dateutil>=2.8.0',
     'requests>=2.24.0',
-    'web3>=4.7.1'
+    'web3==4.7.1'
 ]
 
 # Required to run setup.py:
