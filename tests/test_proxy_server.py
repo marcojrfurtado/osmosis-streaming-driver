@@ -42,14 +42,15 @@ def test_get_token_without_stream_url():
 
 @mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
 @mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.register', side_effect=mocked_register_url)
-def test_get_token_valid_stream(mock_ws, mock_register):
-    assert client.get("/token?stream_url=wss://valid").status_code == 200
+def test_get_token_valid_stream_no_expiration(mock_ws, mock_register):
+    assert client.get("/token?stream_url=wss://valid").status_code == 400
 
 
 @mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
 @mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.register', side_effect=mocked_register_url)
 def test_get_token_invalid_stream(mock_ws, mock_register):
-    assert client.get("/token?stream_url=wss://invalid").status_code == 500
+    timestamp = datetime.now() + timedelta(hours=3)
+    assert client.get(f"/token?stream_url=wss://invalid&expires_at={timestamp.isoformat()}").status_code == 500
 
 
 @mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
@@ -61,13 +62,6 @@ def test_proxy_without_stream_url(mock_ws):
 @mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.get_token_attributes', side_effect=mocked_get_attributes_from_token)
 def test_proxy_valid_token(mock_ws, mock_get_stream_url):
     assert client.get("/proxy?token=valid").status_code == 200
-
-
-@mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
-@mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.get_token_attributes', side_effect=mocked_get_attributes_from_token)
-def test_proxy_valid_token_with_timestmap(mock_ws, mock_get_stream_url):
-    timestamp = datetime.now() + timedelta(hours=3)
-    assert client.get(f"/proxy?token=valid&expires_at={timestamp.isoformat()}").status_code == 200
 
 @mock.patch('websocket.create_connection', side_effect=mocked_ws_connection)
 @mock.patch('osmosis_streaming_driver.proxy_server.TokenStore.get_token_attributes', side_effect=mocked_get_attributes_from_token)

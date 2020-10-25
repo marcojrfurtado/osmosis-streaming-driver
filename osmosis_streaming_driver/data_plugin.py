@@ -13,6 +13,7 @@ from osmosis_driver_interface.exceptions import OsmosisError
 from osmosis_streaming_driver.proxy_server import PROXY_SERVER_PORT, PROXY_SERVER_HOST
 
 web3 = Web3()
+logger = logging.getLogger(__name__)
 
 class Plugin(AbstractPlugin):
     STREAMING_PROXY_ENVVAR = 'STREAMING_PROXY'
@@ -48,6 +49,7 @@ class Plugin(AbstractPlugin):
             return None
         transfer_amount = round(web3.fromWei(int(transfer_event_args.value), 'ether'))
         hours_purchased = int(transfer_amount / int(service.get_cost()))
+        logger.info(f'An amount of {str(transfer_amount)} has been transferred for the purchase of {hours_purchased} hours.')
         return datetime.now() + timedelta(hours=hours_purchased) 
 
     def _obtain_token(self, remote_file, expiration_date=None):

@@ -17,10 +17,6 @@ else:
     except Exception as e:
         warnings.warn('Error while trying to obtain IP address of this host. %s' % str(e))
 
-PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN = 2
-if 'PROXY_SERVER_TOKEN_EXPIRATION_MIN' in os.environ:
-    PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN = os.environ['PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN']
-
 app = Flask(__name__)
 store = TokenStore()
 
@@ -52,14 +48,16 @@ def _validate_stream(stream_url, timeout_sec=5):
 def get_token():
     stream_url = request.args.get('stream_url', type=str)
     expires_at_str = request.args.get('expires_at', type=str)
-    expires_at = datetime.now()+timedelta(minutes=PROXY_SERVER_DEFAULT_TOKEN_EXPIRATION_MIN)
-    try:
-        expires_at = datetime.fromisoformat(expires_at_str)
-    except:
-        pass
 
     if stream_url is None:
         return "You need to provide the URL of your stream.", 400
+    if expires_at_str is None:
+        return "You need to provide the expiration date.", 400
+
+    try:
+        expires_at = datetime.fromisoformat(expires_at_str)
+    except:
+        return f'Expect ISO format expiring date, got {expires_at_str}', 400
 
     test_status, error_message = _validate_stream(stream_url)
     if not test_status:
